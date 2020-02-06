@@ -1,0 +1,61 @@
+<form theme="dark">
+  <label>Users Inventory</label>
+  <description>Pulls all user information from the local osquery host</description>
+  <fieldset submitButton="true">
+    <input type="time" token="time">
+      <label>Time Range</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="host">
+      <label>Host</label>
+      <default>*</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Shell Type by User</title>
+      <table>
+        <search>
+          <query>index="osquery" name="pack_user-check_linux_users" hostIdentifier=$host$
+| rename "columns.username" AS "Username", "columns.shell" AS "Shell"
+| sort "Shell"
+| stats list("Username") AS "Users", list("Shell") AS "Shell" by decorations.Hostname</query>
+          <earliest>rt-5m</earliest>
+          <latest>rt</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>/etc/sudoers File Contents</title>
+      <table>
+        <search>
+          <query>index=osquery hostIdentifier=localhost.localdomain name="pack_generic-linux_linux_sudoers" hostIdentifier=$host$
+| stats values(columns.rule_details) by columns.source</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

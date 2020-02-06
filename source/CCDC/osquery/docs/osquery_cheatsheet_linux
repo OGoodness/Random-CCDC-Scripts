@@ -1,0 +1,57 @@
+System Auditing
+-----------------------
+
+
+SELECT * FROM crontab;                                                      # Retrieves all the jobs scheduled in crontab in the target system
+SELECT * FROM kernel_info;                                                  # Retrieves information from the current kernel in the target system
+SELECT * FROM kernel_modules;                                               # Linux kernel modules both loaded and within the load search path
+SELECT device, device_alias, path, type, blocks_size, flags FROM mounts;    # Retrieves the current list of mounted drives in the target system
+SELECT * FROM os_version;                                                   # Retrieves information from the Operating System where osquery is currently running
+SELECT  hostname,uuid,cpu_type,cpu_subtype,cpu_brand,cpu_physical_cores,cpu_logical_cores,cpu_microcode,physical_memory FROM system_info; # Retrieves information about system components
+
+
+Networking Auditing
+-----------------------
+
+SELECT DISTINCT p.name, p.path, lp.port, lp.address, lp.protocol FROM listening_ports lp LEFT JOIN processes p ON lp.pid = p.pid WHERE lp.port != 0; # Retrieves listening ports on host
+SELECT * FROM routes;                                                       # Retrieves system routing table information
+SELECT * FROM arp_cache;                                                    # Retrieves local arp cache information
+SELECT * FROM etc_hosts;                                                    # Retrieves contents of /etc/host file
+SELECT * FROM dns_resolvers;                                                # Retrieves dns resolvers used by host
+
+
+Memory Analysis
+-----------------------
+
+select * from memory_info;                                                  # Pulls memory information from the host
+
+
+
+User Auditing
+-----------------------
+
+SELECT * FROM users;                                                        # Pulls all user information from /etc/passwd
+SELECT * FROM users CROSS JOIN user_ssh_keys USING (uid);                   # Pulls user ssh keys by each users uid
+SELECT * FROM last;                                                         # Retrieves the list of the latest logins with PID, username and timestamp
+SELECT uid,gid,username, FROM users CROSS JOIN shell_history USING (uid);                   # Record shell history for all users on system
+SELECT uid,gid,username,shell,command FROM users CROSS JOIN shell_history USING (uid);
+
+
+
+Software Auditing (General)
+-----------------------
+
+SELECT * FROM suid_bin;                                                     # Displays any SUID binaries that are owned by root
+
+
+CentOS
+-----------------------
+
+SELECT name, baseurl, enabled, gpgcheck FROM yum_sources;                   # Displays YUM package manager sources
+SELECT name, version, release, arch FROM rpm_packages;                      # Displays all installed RPM packages
+
+Ubuntu
+-----------------------
+
+SELECT * FROM apt_sources;                                                  # Displays APT package manager sources
+SELECT * FROM deb_packages;                                                 # Displays all installed DEB packages

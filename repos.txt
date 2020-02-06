@@ -1,0 +1,3 @@
+https://github.com/TheEvilTopHat/ccdcScripts
+https://github.com/UCI-CCDC/CCDC2020
+https://github.com/dbarr914/CCDC/tree/master/Scripts

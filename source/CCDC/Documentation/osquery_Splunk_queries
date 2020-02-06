@@ -1,0 +1,7 @@
+source="/var/log/osquery/*" host="localhost.localdomain" index="osquery" sourcetype="osqueryd.results" name="pack_network-connections_linux_process_open_sockets" columns.remote_address!="127.0.0.1"
+| table hostIdentifier,columns.remote_address,columns.remote_port
+| stats count(columns.remote_port) by columns.remote_address
+| top limit=50 count(columns.remote_port)
+
+
+

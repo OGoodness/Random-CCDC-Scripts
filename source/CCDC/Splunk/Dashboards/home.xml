@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dashboard theme="dark">
+  <label>Home</label>
+  <description>Pace CCDC Security Operations Center Home</description>
+  <row>
+    <panel>
+      <html>
+          <h1>
+            Welcome to the 
+            <font color="#65A637">Pace Cyber Setter Operations Center</font>
+          </h1>
+          <h3>About:</h3>
+          <p>This application acts as the main analytics toolset for the Northeast Colligiate Cyber Defense Competition.</p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+          <h3>Dependencies:</h3>
+          <ul>
+            <li>
+              <a href="https://splunkbase.splunk.com/app/1724/" target="_blank">Lookup File Editor </a>
+              - used to edit and manage indicator lookup files within the Splunk Web interface. 
+            </li>
+            <li>
+              <a href="https://splunkbase.splunk.com/app/2734/" target="_blank">URL Toolbox </a>
+              - set of building blocks for Splunk specially created for URL manipulation.
+            </li>
+            <li>
+              <a href="https://splunkbase.splunk.com/app/3112/" target="_blank">Sankey Diagram </a>
+              - custom visualizations.
+            </li>
+          </ul>
+      </html>
+    </panel>
+    <panel>
+      <html>
+          <h3>More documentation here:</h3>
+          <p>
+            <font color="white">
+              <a href="https://docs.splunk.com/Documentation" target="_blank">https://docs.splunk.com/Documentation</a>
+              <br/>
+            </font>
+            <font color="white">
+              <a href="https://dev.splunk.com/" target="_blank">https://dev.splunk.com/</a>
+            </font>
+          </p>
+          <p>
+            <ul>
+              <li>Questions and feature requests: Please contact the team's Splunk Administrator</li>
+              <li>
+                Questions and answers (General Splunk): <a href="http://answers.splunk.com/" target="_blank">http://answers.splunk.com/answers/</a>
+              </li>
+            </ul>
+          </p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Asset List</title>
+      <table>
+        <title>Pulls asset name and UUID information from osquery agents</title>
+        <search>
+          <query>index="osquery" name=* source="/var/log/osquery/osqueryd.results.log" "pack_osquery-monitoring_osquery_info" 
+| dedup hostIdentifier
+| rename hostIdentifier AS "Hostname", columns.uuid AS "UUID"
+| table "Hostname", "UUID"</query>
+          <earliest>0</earliest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>

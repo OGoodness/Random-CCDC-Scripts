@@ -1,0 +1,141 @@
+<form theme="dark">
+  <label>Network Inventory</label>
+  <description>Monitors local hosts for listening ports.</description>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="host">
+      <label>Host</label>
+      <default>*</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Arp Cache</title>
+      <table>
+        <title>Gathered from osquery arp_cache table.</title>
+        <search>
+          <query>index=osquery name="pack_network-info_arp_cache" hostIdentifier=$host$
+| rename columns.address AS "IP Address", columns.interface AS "Interface", columns.mac AS "MAC Address", columns.permanent AS "Permanent"
+| dedup "IP Address"
+| table "IP Address", "MAC Address", "Interface", "Permanent"</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>/etc/hosts File Contents</title>
+      <table>
+        <search>
+          <query>index="osquery" name=pack_network-info_etc_hosts hostIdentifier=$host$
+| dedup columns.address
+| rename columns.address AS "IP Address", columns.hostnames AS "Hostnames"
+| table "IP Address", "Hostnames"</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Routing Table</title>
+      <table>
+        <search>
+          <query>index="osquery" name=pack_network-* name="pack_network-info_routing_table"
+| sort - columns.gateway 
+|rename columns.destination AS "Destination", columns.netmask AS "Netmask", columns.gateway AS "Gateway", columns.source AS "Source", columns.flags AS "Flags", columns.interface AS "Interface", columns.mtu AS "MTU" , columns.metric AS "Metric", columns.type AS "Type", columns.hopcount AS "Hop Count"
+| table "Destination", "Netmask", "Gateway", "Source", "Flags", "Interface", "MTU", "Metric", "Type", "Hop Count"</query>
+          <earliest>rt-5m</earliest>
+          <latest>rt</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Remote Connections (Host Correlation)</title>
+      <table>
+        <title>1 minute time window</title>
+        <search>
+          <query>index="osquery" source="/var/log/osquery/osqueryd.*" name=* snapshot{}.remote_address!=127.0.0.1
+|dedup "decorations.Hostname" 
+|table _time, "decorations.Hostname", "decorations.Host UUID", "decorations.IP Addresses", "snapshot{}.remote_address", "snapshot{}.remote_port", "snapshot{}.name"
+| rename _time AS "Time", "decorations.Hostname" AS Hostname, "decorations.Host UUID" AS UUID, "decorations.IP Addresses" AS "Source IP Address (v4)","snapshot{}.remote_address" AS "Remote Address" "snapshot{}.remote_port" AS "Remote Port", "snapshot{}.name" AS "Service Name"</query>
+          <earliest>rt-1m</earliest>
+          <latest>rt</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>1m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Listening Ports</title>
+      <table>
+        <title>From osquery agent</title>
+        <search>
+          <query>index="osquery" source="/var/log/osquery/osqueryd.*" name="pack_network-info_linux_process_listening_port"
+| dedup "decorations.Hostname"
+|table "decorations.Hostname", "decorations.Host UUID", "decorations.IP Addresses", "snapshot{}.port", "snapshot{}.name"
+| rename "decorations.Hostname" AS Hostname, "decorations.Host UUID" AS UUID, "decorations.IP Addresses" AS "IP Address (v4)", "snapshot{}.port" AS "Port Number", "snapshot{}.name" AS "Service Name"</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

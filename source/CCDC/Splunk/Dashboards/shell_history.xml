@@ -1,0 +1,67 @@
+<form theme="dark">
+  <label>Shell History</label>
+  <description>Gathers command history from the local users and sorts them by user.</description>
+  <fieldset submitButton="true">
+    <input type="time" token="time" searchWhenChanged="false">
+      <label>Time</label>
+      <default>
+        <earliest>-60m@m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="user" searchWhenChanged="true">
+      <label>User</label>
+      <default>*</default>
+    </input>
+    <input type="text" token="host">
+      <label>Host</label>
+      <default>*</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>User Drill-Down</title>
+      <table>
+        <search>
+          <query>index=osquery   name="pack_command-execution_shell_history" 
+| spath "columns.history_file" 
+| search "columns.history_file"=* columns.username=$user$ hostIdentifier=$host$
+| table _time, hostIdentifier, columns.username, columns.command
+| stats values(columns.command) by columns.username
+| rename values(columns.command) AS Commands, columns.username AS Users</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Command Execution by User</title>
+      <table>
+        <title>This table contains all commands collected by the local user agents.</title>
+        <search>
+          <query>index=osquery   name="pack_command-execution_shell_history" 
+| spath "columns.history_file" 
+| search "columns.history_file"=* 
+| table _time, columns.username, columns.command</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+  </row>
+</form>
